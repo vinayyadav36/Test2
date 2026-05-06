@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String           @id @default(cuid())
+  name          String?
+  email         String           @unique
+  createdAt     DateTime         @default(now())
+  transactions  Transaction[]
+  rewards       CashbackReward[]
+  wallets       WalletBalance[]
+  subscriptions Subscription[]
+  rules         Rule[]
+  imports       ImportBatch[]
+}
+
+model Transaction {
+  id                 String    @id @default(cuid())
+  userId             String
+  date               DateTime
+  amount             Float
+  direction          String
+  rawDescription     String
+  normalizedMerchant String
+  sourceType         String
+  sourceName         String?
+  category           String
+  confidence         Float
+  explanation        String
+  isSubscription     Boolean   @default(false)
+  cashbackAmount     Float?
+  cashbackStatus     String?
+  rewardExpiryDate   DateTime?
+  referenceId        String?
+  notes              String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model CashbackReward {
+  id          String    @id @default(cuid())
+  userId      String
+  sourceName  String
+  amount      Float
+  status      String
+  earnedAt    DateTime?
+  expiresAt   DateTime?
+  description String?
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model WalletBalance {
+  id         String   @id @default(cuid())
+  userId     String
+  walletName String
+  balance    Float
+  lastSynced DateTime @default(now())
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Subscription {
+  id          String    @id @default(cuid())
+  userId      String
+  merchant    String
+  amount      Float
+  cycle       String
+  nextDueDate DateTime?
+  sourceType  String?
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Rule {
+  id          String   @id @default(cuid())
+  userId      String
+  field       String
+  operator    String
+  value       String
+  actionType  String
+  actionValue String
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ImportBatch {
+  id           String   @id @default(cuid())
+  userId       String
+  fileName     String
+  totalRows    Int
+  importedRows Int
+  failedRows   Int
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
