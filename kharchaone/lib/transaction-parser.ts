@@ -1,6 +1,6 @@
-import { normalizeMerchant } from "./merchant-normalizer";
-import { detectCategory } from "./category-engine";
-import { NormalizedTransaction, RawTransactionRow, SourceType } from "@/types";
+import { detectCategory, applyRules } from "@/lib/category-engine";
+import { normalizeMerchant } from "@/lib/merchant-normalizer";
+import { NormalizedTransaction, RawTransactionRow, Rule, SourceType } from "@/types";
 
 function inferSourceType(raw: string, explicit?: string): SourceType {
   const text = `${explicit || ""} ${raw}`.toLowerCase();
@@ -12,68 +12,50 @@ function inferSourceType(raw: string, explicit?: string): SourceType {
   return "UPI";
 }
 
-function explanationFor(txn: {
-  amount: number;
-  merchant: string;
-  category: string;
-  sourceType: SourceType;
-  direction: "debit" | "credit";
-}): string {
-  const amt = `₹${txn.amount.toFixed(0)}`;
-  if (txn.direction === "credit" && txn.category === "Cashback") {
-    return `Cashback of ${amt} credited from ${txn.merchant}.`;
-  }
-  if (txn.direction === "credit" && txn.category === "Salary") {
-    return `Salary credit of ${amt} received from ${txn.merchant}.`;
-  }
-  if (txn.direction === "credit") {
-    return `Money received: ${amt} from ${txn.merchant}.`;
-  }
-  if (txn.category === "Subscription") {
-    return `Recurring subscription payment of ${amt} to ${txn.merchant}.`;
-  }
-  if (txn.category === "Transfer") {
-    return `Bank transfer of ${amt} sent via ${txn.sourceType}.`;
-  }
-  if (txn.category === "Food") {
-    return `Food order of ${amt} paid to ${txn.merchant} via ${txn.sourceType}.`;
-  }
-  if (txn.category === "Recharge") {
-    return `Mobile/utility recharge of ${amt} via ${txn.sourceType}.`;
-  }
-  if (txn.category === "Transport") {
-    return `Transport payment of ${amt} to ${txn.merchant} via ${txn.sourceType}.`;
-  }
+function explanationFor(txn: { amount: number; merchant: string; category: string; sourceType: SourceType; direction: "debit" | "credit" }): string {
+  const amt = `₹${Math.abs(txn.amount).toFixed(0)}`;
+  if (txn.direction === "credit" && txn.category === "Cashback") return `Cashback of ${amt} credited from ${txn.merchant}.`;
+  if (txn.direction === "credit" && txn.category === "Salary") return `Salary credit of ${amt} received from ${txn.merchant}.`;
+  if (txn.direction === "credit") return `Money received: ${amt} from ${txn.merchant}.`;
+  if (txn.category === "Subscription") return `Recurring subscription payment of ${amt} to ${txn.merchant}.`;
+  if (txn.category === "Transfer") return `Transfer of ${amt} via ${txn.sourceType}.`;
   return `Paid ${amt} to ${txn.merchant} via ${txn.sourceType}.`;
 }
 
-export function parseTransactionRow(row: RawTransactionRow): NormalizedTransaction {
-  const amount = Number(row.amount || 0);
-  const rawDescription = row.raw_description || "";
-  const sourceType = inferSourceType(rawDescription, row.source_type);
-  const normalizedMerchant = normalizeMerchant(row.merchant || rawDescription);
-  const category = detectCategory(`${rawDescription} ${normalizedMerchant}`);
-  const confidence = normalizedMerchant === "Unknown Merchant" || category === "Unknown" ? 0.42 : 0.88;
+export function parseTransactionRow(row: RawTransactionRow, userId: string, rules: Rule[] = []): Omit<NormalizedTransaction, "id" | "createdAt" | "updatedAt"> {
+  const parsedAmount = Number(row.amount || 0);
   const direction = row.type === "credit" ? "credit" : "debit";
-  const isSubscription =
-    category === "Subscription" || String(row.subscription_flag).toLowerCase() === "true";
+  const amount = direction === "debit" ? -Math.abs(parsedAmount) : Math.abs(parsedAmount);
+
+  const rawDescription = row.raw_description || "";
+  const source = inferSourceType(rawDescription, row.source_type);
+  const merchant = normalizeMerchant(row.merchant || rawDescription);
+
+  const ruleApplied = applyRules(`${rawDescription} ${merchant}`, source, rules);
+  const category = ruleApplied.category ?? detectCategory(`${rawDescription} ${merchant}`);
+  const confidence = merchant === "Unknown Merchant" || category === "Unknown" ? 0.42 : 0.9;
+  const isSubscription = category === "Subscription" || String(row.subscription_flag).toLowerCase() === "true";
 
   return {
+    userId,
     date: row.date,
     amount,
     direction,
     rawDescription,
-    normalizedMerchant,
-    sourceType,
+    merchant,
+    normalizedMerchant: merchant,
+    source,
+    sourceType: source,
     sourceName: row.source_name,
     category,
     confidence,
-    explanation: explanationFor({ amount, merchant: normalizedMerchant, category, sourceType, direction }),
+    explanation: explanationFor({ amount, merchant, category, sourceType: source, direction }),
     isSubscription,
     cashbackAmount: row.cashback_amount ? Number(row.cashback_amount) : undefined,
-    cashbackStatus: row.cashback_status || undefined,
+    cashbackStatus: (row.cashback_status as "earned" | "pending" | "claimed" | "expired") || undefined,
     rewardExpiryDate: row.reward_expiry_date || null,
     referenceId: row.reference_id,
+    note: row.notes,
     notes: row.notes,
   };
 }

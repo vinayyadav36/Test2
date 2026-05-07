@@ -1,37 +1,59 @@
-interface TxnForSub {
-  normalizedMerchant: string;
-  amount: number;
-  date: string;
-  isSubscription: boolean;
-}
+import { NormalizedTransaction } from "@/types";
 
 export interface DetectedSubscription {
   merchant: string;
   amount: number;
-  cycle: string;
+  frequency: "monthly" | "quarterly" | "yearly";
   occurrences: number;
-  lastSeen: string;
+  lastDate: string;
+  nextDate: string;
+  isRedundantCandidate: boolean;
 }
 
-export function detectSubscriptions(transactions: TxnForSub[]): DetectedSubscription[] {
-  const map: Record<string, TxnForSub[]> = {};
-  for (const txn of transactions) {
-    const key = `${txn.normalizedMerchant}__${Math.round(txn.amount / 5) * 5}`;
-    if (!map[key]) map[key] = [];
-    map[key].push(txn);
-  }
+function avg(nums: number[]): number {
+  return nums.reduce((a, b) => a + b, 0) / nums.length;
+}
+
+export function detectSubscriptions(transactions: NormalizedTransaction[]): DetectedSubscription[] {
+  const debitTxns = transactions.filter((t) => t.direction === "debit");
+  const grouped = new Map<string, NormalizedTransaction[]>();
+
+  debitTxns.forEach((txn) => {
+    const key = `${txn.merchant.toLowerCase()}::${Math.round(Math.abs(txn.amount) / 10) * 10}`;
+    grouped.set(key, [...(grouped.get(key) ?? []), txn]);
+  });
 
   const results: DetectedSubscription[] = [];
-  for (const [key, txns] of Object.entries(map)) {
+  for (const txns of Array.from(grouped.values())) {
     if (txns.length < 2) continue;
-    const [merchant] = key.split("__");
-    const sorted = [...txns].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    const sorted = [...txns].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    const intervals: number[] = [];
+    for (let i = 1; i < sorted.length; i += 1) {
+      intervals.push((new Date(sorted[i].date).getTime() - new Date(sorted[i - 1].date).getTime()) / 86400000);
+    }
+
+    const average = avg(intervals);
+    let frequency: "monthly" | "quarterly" | "yearly" | null = null;
+    if (average >= 25 && average <= 35) frequency = "monthly";
+    else if (average >= 80 && average <= 100) frequency = "quarterly";
+    else if (average >= 330 && average <= 390) frequency = "yearly";
+
+    if (!frequency) continue;
+
+    const merchant = sorted[0].merchant;
+    const amount = Math.abs(sorted[sorted.length - 1].amount);
+    const lastDate = sorted[sorted.length - 1].date;
+    const nextDate = new Date(lastDate);
+    nextDate.setDate(nextDate.getDate() + Math.round(average));
+
     results.push({
       merchant,
-      amount: txns[0].amount,
-      cycle: "monthly",
-      occurrences: txns.length,
-      lastSeen: sorted[0].date,
+      amount,
+      frequency,
+      occurrences: sorted.length,
+      lastDate,
+      nextDate: nextDate.toISOString(),
+      isRedundantCandidate: /(netflix|prime|hotstar|spotify|youtube)/i.test(merchant),
     });
   }
 

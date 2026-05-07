@@ -11,12 +11,12 @@ const REPLACEMENTS: Array<[RegExp, string]> = [
   [/spotify/gi, "Spotify"],
   [/netflix/gi, "Netflix"],
   [/hotstar|disney/gi, "Disney+ Hotstar"],
-  [/prime\s?video|primevideo/gi, "Amazon Prime"],
+  [/prime\s?video|primevideo|amazon prime/gi, "Amazon Prime"],
   [/youtube\s?premium/gi, "YouTube Premium"],
   [/jio/gi, "Jio"],
   [/airtel/gi, "Airtel"],
   [/bsnl/gi, "BSNL"],
-  [/vodafone|vi\b/gi, "Vi (Vodafone)"],
+  [/vodafone|\bvi\b/gi, "Vi"],
   [/uber/gi, "Uber"],
   [/ola\b/gi, "Ola"],
   [/rapido/gi, "Rapido"],
@@ -24,7 +24,6 @@ const REPLACEMENTS: Array<[RegExp, string]> = [
   [/makemytrip|mmt/gi, "MakeMyTrip"],
   [/yatra/gi, "Yatra"],
   [/bigbasket/gi, "BigBasket"],
-  [/grofers|blinkit/gi, "Blinkit"],
   [/dunzo/gi, "Dunzo"],
   [/myntra/gi, "Myntra"],
   [/flipkart/gi, "Flipkart"],
@@ -41,7 +40,7 @@ export function normalizeMerchant(raw: string): string {
   if (!raw) return "Unknown Merchant";
 
   let cleaned = raw
-    .replace(/upi|p2m|p2p|txn|trf|ref|id|paid to|payment to/gi, " ")
+    .replace(/upi|p2m|p2p|txn|trf|ref|id|paid to|payment to|neft|imps/gi, " ")
     .replace(/[|/_\-.:]+/g, " ")
     .replace(/\b\d{6,}\b/g, " ")
     .replace(/\s+/g, " ")
@@ -52,7 +51,7 @@ export function normalizeMerchant(raw: string): string {
   }
 
   const parts = cleaned.split(" ").filter(Boolean);
-  if (parts.length === 0) return "Unknown Merchant";
+  if (parts.length === 0 || /[@]/.test(cleaned)) return "Unknown Merchant";
 
   return parts
     .slice(0, 2)
