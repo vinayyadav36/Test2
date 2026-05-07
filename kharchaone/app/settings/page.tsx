@@ -1,43 +1,50 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { AppShell } from "@/components/layout/app-shell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { useAppStore } from "@/store/use-app-store";
+import { Input } from "@/components/ui/input";
 
 export default function SettingsPage() {
-  const { isDemoMode, setDemoMode } = useAppStore();
+  const [user, setUser] = useState<null | { darkMode: boolean; smallUpiThreshold: number }>(null);
+
+  useEffect(() => {
+    fetch("/api/settings").then((r) => r.json()).then((d) => setUser(d.user));
+  }, []);
+
+  const patch = async (payload: Record<string, unknown>) => {
+    const res = await fetch("/api/settings", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    setUser(data.user);
+  };
+
+  if (!user) return <AppShell><div className="p-6">Loading settings...</div></AppShell>;
 
   return (
     <AppShell>
       <div className="max-w-2xl mx-auto space-y-6">
         <Card>
-          <CardHeader>
-            <CardTitle>General Settings</CardTitle>
-          </CardHeader>
+          <CardHeader><CardTitle>General Settings</CardTitle></CardHeader>
           <CardContent className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <Label htmlFor="demo-mode" className="text-base">Demo Mode</Label>
-                <p className="text-sm text-muted-foreground">Use sample data instead of live database</p>
+                <Label htmlFor="dark-mode" className="text-base">Dark Mode</Label>
+                <p className="text-sm text-muted-foreground">Apply dark theme globally.</p>
               </div>
-              <Switch id="demo-mode" checked={isDemoMode} onCheckedChange={setDemoMode} />
+              <Switch id="dark-mode" checked={user.darkMode} onCheckedChange={(checked) => patch({ darkMode: checked })} />
             </div>
             <Separator />
             <div className="space-y-2">
-              <p className="text-sm font-medium">Data Source</p>
-              <p className="text-sm text-muted-foreground">
-                {isDemoMode
-                  ? "Using in-memory demo data (40 sample transactions)"
-                  : "Using Prisma + SQLite database (dev.db)"}
-              </p>
-            </div>
-            <Separator />
-            <div className="space-y-1">
-              <p className="text-sm font-medium">Version</p>
-              <p className="text-sm text-muted-foreground">KharchaOne v0.1.0 · MVP</p>
+              <Label htmlFor="threshold">Small UPI threshold (₹)</Label>
+              <Input id="threshold" type="number" value={user.smallUpiThreshold} onChange={(e) => setUser({ ...user, smallUpiThreshold: Number(e.target.value) })} onBlur={() => patch({ smallUpiThreshold: Number(user.smallUpiThreshold) })} />
+              <p className="text-sm text-muted-foreground">Used for micro-spend analytics and what-if savings.</p>
             </div>
           </CardContent>
         </Card>

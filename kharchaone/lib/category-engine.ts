@@ -1,9 +1,9 @@
-import { Category } from "@/types";
+import { Category, Rule, SourceType } from "@/types";
 
 const CATEGORY_RULES: Record<Category, string[]> = {
-  Food: ["swiggy", "zomato", "restaurant", "cafe", "tea", "snack", "juice", "hotel", "food", "biryani", "pizza", "burger", "dine", "eatery", "dominos", "kfc", "mcdonalds"],
+  Food: ["swiggy", "zomato", "restaurant", "cafe", "tea", "snack", "juice", "hotel", "food", "biryani", "pizza", "burger", "dine", "eatery", "dominos", "kfc", "mcdonalds", "canteen", "chai"],
   Grocery: ["zepto", "blinkit", "instamart", "grocery", "mart", "store", "bigbasket", "grofer", "fresh", "dunzo"],
-  Transport: ["uber", "ola", "metro", "fuel", "petrol", "diesel", "rapido", "cab", "auto", "bus", "irctc", "train", "bmrc"],
+  Transport: ["uber", "ola", "metro", "fuel", "petrol", "diesel", "rapido", "cab", "auto", "bus", "irctc", "train", "bmrc", "autorickshaw"],
   Shopping: ["amazon", "flipkart", "myntra", "meesho", "nykaa", "store", "mall", "purchase", "shop"],
   Bills: ["electricity", "water", "gas", "broadband", "bill", "postpaid", "utility", "bescom", "mseb", "tpddl"],
   Recharge: ["recharge", "prepaid", "topup", "mobile", "airtel", "jio", "vi ", "bsnl"],
@@ -22,8 +22,38 @@ const CATEGORY_RULES: Record<Category, string[]> = {
   Unknown: [],
 };
 
+export function applyRules(text: string, sourceType: SourceType, rules: Rule[]): { category?: Category; sourceType?: SourceType } {
+  const hay = text.toLowerCase();
+  for (const rule of rules) {
+    if (!rule.enabled) continue;
+    const value = rule.value.toLowerCase();
+
+    let matched = false;
+    if (rule.field === "sourceType") {
+      matched = sourceType.toLowerCase() === value;
+    } else if (rule.operator === "equals") {
+      matched = hay === value;
+    } else if (rule.operator === "contains") {
+      matched = hay.includes(value);
+    } else {
+      try {
+        matched = new RegExp(rule.value, "i").test(hay);
+      } catch {
+        matched = false;
+      }
+    }
+
+    if (matched) {
+      return { category: rule.category, sourceType: rule.sourceType };
+    }
+  }
+
+  return {};
+}
+
 export function detectCategory(text: string): Category {
   const hay = text.toLowerCase();
+  if (/(subscription|autopay|renewal|netflix|spotify|prime|hotstar|youtube premium)/.test(hay)) return "Subscription";
   for (const [category, keywords] of Object.entries(CATEGORY_RULES) as [Category, string[]][]) {
     if (keywords.some((k) => hay.includes(k))) return category;
   }

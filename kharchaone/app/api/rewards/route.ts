@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
-import { DEMO_REWARDS } from "@/lib/demo-data";
+import { getSessionUserId } from "@/lib/auth";
+import { rewardsRepo } from "@/lib/json-db";
+import { computeCashbackSummary } from "@/lib/cashback-engine";
 
 export async function GET() {
-  const rewards = DEMO_REWARDS;
-  const totalPending = rewards.filter((r) => r.status === "pending").reduce((s, r) => s + r.amount, 0);
-  const totalEarned = rewards.reduce((s, r) => s + r.amount, 0);
+  const userId = getSessionUserId();
+  const rewards = await rewardsRepo.query((r) => r.userId === userId);
+  const summary = computeCashbackSummary(rewards);
 
-  return NextResponse.json({ rewards, totalPending, totalEarned });
+  return NextResponse.json({ rewards, ...summary });
 }

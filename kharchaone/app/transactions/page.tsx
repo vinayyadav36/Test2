@@ -18,12 +18,15 @@ export default function TransactionsPage() {
   useEffect(() => {
     fetch("/api/transactions")
       .then((r) => r.json())
-      .then((d) => { setAllTxns(d.transactions); setLoading(false); });
+      .then((d) => {
+        setAllTxns(d.transactions || []);
+        setLoading(false);
+      });
   }, []);
 
   const filtered = allTxns.filter((t) => {
-    if (categoryFilter && categoryFilter !== "all" && t.category !== categoryFilter) return false;
-    if (sourceFilter && sourceFilter !== "all" && t.source !== sourceFilter) return false;
+    if (categoryFilter !== "all" && t.category !== categoryFilter) return false;
+    if (sourceFilter !== "all" && t.source !== sourceFilter) return false;
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       return t.merchant.toLowerCase().includes(q) || (t.note ?? "").toLowerCase().includes(q);
@@ -36,9 +39,7 @@ export default function TransactionsPage() {
       <div className="space-y-4">
         <TransactionFilters />
         {loading ? (
-          <div className="space-y-2">
-            {Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-12" />)}
-          </div>
+          <div className="space-y-2">{Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-12" />)}</div>
         ) : (
           <>
             <p className="text-sm text-muted-foreground">{filtered.length} transactions</p>

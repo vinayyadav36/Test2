@@ -39,11 +39,7 @@ export function TransactionsTable({ transactions, onRowClick }: TransactionsTabl
           {transactions.map((t, i) => (
             <tr
               key={t.id}
-              className={cn(
-                "border-b border-border last:border-0 transition-colors",
-                onRowClick ? "cursor-pointer hover:bg-accent/50" : "",
-                i % 2 === 0 ? "bg-background" : "bg-muted/20"
-              )}
+              className={cn("border-b border-border last:border-0 transition-colors", onRowClick ? "cursor-pointer hover:bg-accent/50" : "", i % 2 === 0 ? "bg-background" : "bg-muted/20")}
               onClick={() => onRowClick?.(t)}
             >
               <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">{formatDate(t.date)}</td>
@@ -54,22 +50,15 @@ export function TransactionsTable({ transactions, onRowClick }: TransactionsTabl
                 </div>
               </td>
               <td className="py-3 px-4 hidden md:table-cell">
-                <span
-                  className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium text-white"
-                  style={{ backgroundColor: CATEGORY_COLORS[t.category as keyof typeof CATEGORY_COLORS] ?? "#6b7280" }}
-                >
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium text-white" style={{ backgroundColor: CATEGORY_COLORS[t.category as keyof typeof CATEGORY_COLORS] ?? "#6b7280" }}>
                   {t.category}
                 </span>
               </td>
-              <td className="py-3 px-4 hidden lg:table-cell">
-                <Badge variant="outline" className="text-xs capitalize">{t.source}</Badge>
+              <td className="py-3 px-4 hidden lg:table-cell"><Badge variant="outline" className="text-xs capitalize">{t.source}</Badge></td>
+              <td className={cn("py-3 px-4 text-right font-semibold whitespace-nowrap", t.direction === "debit" ? "text-red-500" : "text-green-600")}>
+                {t.direction === "debit" ? "-" : "+"}{formatCurrency(Math.abs(t.amount))}
               </td>
-              <td className={cn("py-3 px-4 text-right font-semibold whitespace-nowrap", t.amount < 0 ? "text-red-500" : "text-green-600")}>
-                {t.amount < 0 ? "-" : "+"}{formatCurrency(Math.abs(t.amount))}
-              </td>
-              <td className="py-3 px-4 text-center hidden xl:table-cell">
-                <ConfidenceBadge confidence={t.confidence ?? 0.88} />
-              </td>
+              <td className="py-3 px-4 text-center hidden xl:table-cell"><ConfidenceBadge confidence={t.confidence ?? 0.88} /></td>
             </tr>
           ))}
         </tbody>

@@ -13,13 +13,14 @@ import type { NormalizedTransaction } from "@/types";
 export default function ImportPage() {
   const [files, setFiles] = useState<File[]>([]);
   const [importing, setImporting] = useState(false);
-  const [result, setResult] = useState<{ imported: number; transactions: NormalizedTransaction[]; errors: string[] } | null>(null);
+  const [result, setResult] = useState<{ mode: string; imported: number; transactions: NormalizedTransaction[]; errors: string[] } | null>(null);
 
-  const handleImport = async () => {
+  const submit = async (mode: "preview" | "confirm") => {
     if (!files.length) return;
     setImporting(true);
     const formData = new FormData();
     formData.append("file", files[0]);
+    formData.append("mode", mode);
     const res = await fetch("/api/import", { method: "POST", body: formData });
     const data = await res.json();
     setResult(data);
@@ -28,22 +29,18 @@ export default function ImportPage() {
 
   return (
     <AppShell>
-      <div className="max-w-3xl mx-auto space-y-6">
+      <div className="max-w-4xl mx-auto space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Upload className="w-5 h-5" />
-              Import CSV
-            </CardTitle>
-            <CardDescription>
-              Upload a CSV with columns: date, description, amount (debit/credit), balance.
-            </CardDescription>
+            <CardTitle className="flex items-center gap-2"><Upload className="w-5 h-5" />Import CSV</CardTitle>
+            <CardDescription>Required columns: date, amount, type (debit/credit), raw_description.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <ImportDropzone onFilesSelected={setFiles} />
-            <Button onClick={handleImport} disabled={!files.length || importing} className="w-full">
-              {importing ? "Importing…" : "Import Transactions"}
-            </Button>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <Button onClick={() => submit("preview")} disabled={!files.length || importing} variant="outline">{importing ? "Working..." : "Preview"}</Button>
+              <Button onClick={() => submit("confirm")} disabled={!files.length || importing}>{importing ? "Working..." : "Confirm Import"}</Button>
+            </div>
           </CardContent>
         </Card>
 
@@ -52,8 +49,8 @@ export default function ImportPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <CheckCircle2 className="w-5 h-5 text-green-500" />
-                Import Complete
-                <Badge variant="success">{result.imported} imported</Badge>
+                {result.mode === "confirm" ? "Import Complete" : "Preview Ready"}
+                <Badge variant="success">{result.imported} rows</Badge>
               </CardTitle>
             </CardHeader>
             <CardContent>

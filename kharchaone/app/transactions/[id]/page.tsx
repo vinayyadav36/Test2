@@ -1,19 +1,16 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { AppShell } from "@/components/layout/app-shell";
 import { TransactionDetailSheet } from "@/components/transactions/transaction-detail-sheet";
-import { DEMO_TRANSACTIONS } from "@/lib/demo-data";
 import type { NormalizedTransaction } from "@/types";
 
-export default function TransactionDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+export default function TransactionDetailPage({ params }: { params: { id: string } }) {
   const [txn, setTxn] = useState<NormalizedTransaction | null>(null);
 
   useEffect(() => {
-    const found = DEMO_TRANSACTIONS.find((t) => t.id === id) ?? null;
-    setTxn(found);
-  }, [id]);
+    fetch(`/api/transactions/${params.id}`).then((r) => r.json()).then((d) => setTxn(d.transaction ?? null));
+  }, [params.id]);
 
   return (
     <AppShell>
