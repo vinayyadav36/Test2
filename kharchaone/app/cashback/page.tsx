@@ -13,7 +13,7 @@ export default function CashbackPage() {
   const [data, setData] = useState<null | { rewards: Array<{ id: string; sourceName: string; amount: number; status: string; earnedAt: string; expiresAt?: string | null; description?: string }>; totalPending: number; totalEarned: number; realizedVsPotentialPct: number }>(null);
 
   useEffect(() => {
-    fetch("/api/rewards").then((r) => r.json()).then(setData);
+    fetch("/api/cashback").then((r) => r.json()).then(setData);
   }, []);
 
   if (!data) return <AppShell><Skeleton className="h-64" /></AppShell>;

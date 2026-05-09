@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, ArrowLeftRight, Gift, Wallet, RefreshCw, Settings, Upload, BookOpen, IndianRupee } from "lucide-react";
+import { LayoutDashboard, ArrowLeftRight, Gift, Wallet, RefreshCw, Settings, Upload, BookOpen, IndianRupee, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { href: "/wallets", label: "Wallets", icon: Wallet },
   { href: "/subscriptions", label: "Subscriptions", icon: RefreshCw },
   { href: "/rules", label: "Rules", icon: BookOpen },
+  { href: "/anomalies", label: "Anomalies", icon: AlertTriangle },
   { href: "/import", label: "Import", icon: Upload },
   { href: "/settings", label: "Settings", icon: Settings },
 ];

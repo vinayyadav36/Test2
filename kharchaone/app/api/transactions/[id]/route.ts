@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { categoryFeedbackRepo, transactionsRepo } from "@/lib/json-db";
+import { anomaliesRepo, categoryFeedbackRepo, transactionsRepo } from "@/lib/json-db";
 import { getSessionUserId } from "@/lib/auth";
+import { recomputeCurrentMonthArtifacts } from "@/lib/monthly-maintenance";
 
 const patchSchema = z.object({
   category: z.string().optional(),
@@ -11,10 +12,16 @@ const patchSchema = z.object({
 export async function GET(_: Request, { params }: { params: { id: string } }) {
   const txn = await transactionsRepo.getById(params.id);
   if (!txn) return NextResponse.json({ error: "Transaction not found" }, { status: 404 });
-  return NextResponse.json({ transaction: txn });
+  const anomaly = await anomaliesRepo.query((a) => a.transactionId === params.id && a.status !== "dismissed");
+  return NextResponse.json({
+    transaction: anomaly.length
+      ? { ...txn, anomaly: { flagged: true, reason: anomaly[0].message } }
+      : txn,
+    anomaly: anomaly[0] ?? null,
+  });
 }
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+async function updateTransaction(req: Request, { params }: { params: { id: string } }) {
   const userId = getSessionUserId();
   const existing = await transactionsRepo.getById(params.id);
   if (!existing) return NextResponse.json({ error: "Transaction not found" }, { status: 404 });
@@ -46,5 +53,19 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     }
   }
 
-  return NextResponse.json({ transaction: updated });
+  const feedback = await categoryFeedbackRepo.query((f) => f.userId === userId && f.merchant.toLowerCase() === existing.merchant.toLowerCase());
+  const frequent = feedback.find((f) => f.count >= 3);
+  const suggestion = frequent
+    ? `You often change ${existing.merchant} to ${frequent.toCategory}. Consider creating a rule.`
+    : null;
+  await recomputeCurrentMonthArtifacts(userId);
+  return NextResponse.json({ transaction: updated, ruleSuggestion: suggestion });
+}
+
+export async function PATCH(req: Request, context: { params: { id: string } }) {
+  return updateTransaction(req, context);
+}
+
+export async function PUT(req: Request, context: { params: { id: string } }) {
+  return updateTransaction(req, context);
 }

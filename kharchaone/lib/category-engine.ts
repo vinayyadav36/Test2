@@ -25,7 +25,7 @@ const CATEGORY_RULES: Record<Category, string[]> = {
 export function applyRules(text: string, sourceType: SourceType, rules: Rule[]): { category?: Category; sourceType?: SourceType } {
   const hay = text.toLowerCase();
   for (const rule of rules) {
-    if (!rule.enabled) continue;
+    if (!(rule.active ?? rule.enabled)) continue;
     const value = rule.value.toLowerCase();
 
     let matched = false;
@@ -35,6 +35,10 @@ export function applyRules(text: string, sourceType: SourceType, rules: Rule[]):
       matched = hay === value;
     } else if (rule.operator === "contains") {
       matched = hay.includes(value);
+    } else if (rule.operator === "startsWith") {
+      matched = hay.startsWith(value);
+    } else if (rule.operator === "endsWith") {
+      matched = hay.endsWith(value);
     } else {
       try {
         matched = new RegExp(rule.value, "i").test(hay);
