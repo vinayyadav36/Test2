@@ -54,11 +54,12 @@ async function updateTransaction(req: Request, { params }: { params: { id: strin
   }
 
   const feedback = await categoryFeedbackRepo.query((f) => f.userId === userId && f.merchant.toLowerCase() === existing.merchant.toLowerCase());
-  const suggestion =
-    feedback.find((f) => f.count >= 3) &&
-    `You often change ${existing.merchant} to ${feedback.find((f) => f.count >= 3)?.toCategory}. Consider creating a rule.`;
+  const frequent = feedback.find((f) => f.count >= 3);
+  const suggestion = frequent
+    ? `You often change ${existing.merchant} to ${frequent.toCategory}. Consider creating a rule.`
+    : null;
   await recomputeCurrentMonthArtifacts(userId);
-  return NextResponse.json({ transaction: updated, ruleSuggestion: suggestion ?? null });
+  return NextResponse.json({ transaction: updated, ruleSuggestion: suggestion });
 }
 
 export async function PATCH(req: Request, context: { params: { id: string } }) {

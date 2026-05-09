@@ -48,8 +48,6 @@ export function applyRules(text: string, sourceType: SourceType, rules: Rule[]):
     }
 
     if (matched) {
-      rule.timesTriggered = (rule.timesTriggered ?? 0) + 1;
-      rule.lastTriggeredAt = new Date().toISOString();
       return { category: rule.category, sourceType: rule.sourceType };
     }
   }

@@ -3,6 +3,8 @@ import { z } from "zod";
 import { getSessionUserId } from "@/lib/auth";
 import { walletsRepo } from "@/lib/json-db";
 
+const UNKNOWN_ACTIVITY_DAYS = 999;
+
 const updateSchema = z.object({
   id: z.string(),
   balance: z.number().optional(),
@@ -16,7 +18,7 @@ export async function GET() {
 
   const enriched = wallets.map((w) => {
     const lastActivity = w.lastActivityAt ?? w.lastUsedAt;
-    const lastUsedDaysAgo = lastActivity ? Math.floor((Date.now() - new Date(lastActivity).getTime()) / 86400000) : 999;
+    const lastUsedDaysAgo = lastActivity ? Math.floor((Date.now() - new Date(lastActivity).getTime()) / 86400000) : UNKNOWN_ACTIVITY_DAYS;
     const derivedStatus = lastUsedDaysAgo <= 30 ? "active" : "dormant";
     return {
       ...w,

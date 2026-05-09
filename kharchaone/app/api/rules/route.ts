@@ -3,6 +3,7 @@ import { z } from "zod";
 import { getSessionUserId } from "@/lib/auth";
 import { Rule } from "@/types";
 import { categoryFeedbackRepo, rulesRepo } from "@/lib/json-db";
+import { CATEGORIES } from "@/lib/constants";
 
 const createRuleSchema = z.object({
   field: z.enum(["merchant", "description", "sourceType", "normalizedMerchant", "rawDescription"]),
@@ -10,7 +11,7 @@ const createRuleSchema = z.object({
   value: z.string().min(1),
   actionType: z.enum(["setCategory", "setSourceType"]).optional(),
   actionValue: z.string().optional(),
-  category: z.string().optional(),
+  category: z.enum(CATEGORIES).optional(),
   sourceType: z.enum(["UPI", "CARD", "WALLET", "BANK_TRANSFER", "SUBSCRIPTION", "CASHBACK", "REFUND"]).optional(),
   enabled: z.boolean().default(true),
 });
@@ -62,7 +63,8 @@ export async function PUT(req: Request) {
   const parsed = updateRuleSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
 
-  const updated = await rulesRepo.update(parsed.data.id, parsed.data);
+  const { id, ...patch } = parsed.data;
+  const updated = await rulesRepo.update(id, patch);
   if (!updated) return NextResponse.json({ error: "Rule not found" }, { status: 404 });
   return NextResponse.json({ rule: updated });
 }

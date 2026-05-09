@@ -3,10 +3,11 @@ import { z } from "zod";
 import { getSessionUserId } from "@/lib/auth";
 import { budgetsRepo } from "@/lib/json-db";
 import { recomputeCurrentMonthArtifacts } from "@/lib/monthly-maintenance";
+import { CATEGORIES } from "@/lib/constants";
 
 const schema = z.object({
   month: z.string().regex(/^\d{4}-\d{2}$/),
-  category: z.string(),
+  category: z.enum(CATEGORIES),
   limitAmount: z.number().positive(),
   thresholdNearRatio: z.number().min(0.5).max(1).optional(),
 });
@@ -29,7 +30,7 @@ export async function POST(req: Request) {
   const budget = await budgetsRepo.insert({
     userId,
     month: parsed.data.month,
-    category: parsed.data.category as never,
+    category: parsed.data.category,
     limitAmount: parsed.data.limitAmount,
     spentAmount: 0,
     remainingAmount: parsed.data.limitAmount,
@@ -47,7 +48,8 @@ export async function PUT(req: Request) {
   const parsed = updateSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
 
-  const updated = await budgetsRepo.update(parsed.data.id, parsed.data);
+  const { id, ...patch } = parsed.data;
+  const updated = await budgetsRepo.update(id, patch);
   if (!updated || updated.userId !== userId) return NextResponse.json({ error: "Budget not found" }, { status: 404 });
 
   await recomputeCurrentMonthArtifacts(userId);
