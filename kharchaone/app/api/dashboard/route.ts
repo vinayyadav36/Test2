@@ -1,14 +1,19 @@
 import { NextResponse } from "next/server";
+import { format } from "date-fns";
 import { getSessionUserId } from "@/lib/auth";
-import { budgetsRepo, goalsRepo, rewardsRepo, subscriptionsRepo, transactionsRepo, usersRepo, walletsRepo } from "@/lib/json-db";
+import { anomaliesRepo, analyticsRepo, budgetsRepo, goalsRepo, rewardsRepo, subscriptionsRepo, transactionsRepo, usersRepo, walletsRepo } from "@/lib/json-db";
 import { computeInsights } from "@/lib/insight-engine";
 import { computeCashbackSummary } from "@/lib/cashback-engine";
 import { buildTransactionIndexes } from "@/lib/json-db/transaction-index";
+import { recomputeCurrentMonthArtifacts } from "@/lib/monthly-maintenance";
 
 export async function GET() {
   const userId = getSessionUserId();
+  const month = format(new Date(), "yyyy-MM");
 
-  const [transactions, rewards, wallets, subscriptions, budgets, goals, user] = await Promise.all([
+  await recomputeCurrentMonthArtifacts(userId);
+
+  const [transactions, rewards, wallets, subscriptions, budgets, goals, user, analyticsDoc, anomalies] = await Promise.all([
     transactionsRepo.query((t) => t.userId === userId),
     rewardsRepo.query((r) => r.userId === userId),
     walletsRepo.query((w) => w.userId === userId),
@@ -16,6 +21,8 @@ export async function GET() {
     budgetsRepo.query((b) => b.userId === userId),
     goalsRepo.query((g) => g.userId === userId),
     usersRepo.getById(userId),
+    analyticsRepo.getById(`an_${month}_${userId}`),
+    anomaliesRepo.query((a) => a.userId === userId && a.status === "unread"),
   ]);
 
   const indexes = buildTransactionIndexes(transactions);
@@ -34,11 +41,14 @@ export async function GET() {
 
   return NextResponse.json({
     ...insights,
+    monthlyAnalytics: analyticsDoc,
     rewards,
     wallets: walletsWithIdle,
     subscriptions,
     cashback,
+    attentionCount: anomalies.length,
+    topGoals: goals.slice(0, 3),
     totalPendingCashback: cashback.totalPending,
-    totalMonthlySubscriptions: subscriptions.filter((s) => s.isActive).reduce((sum, s) => sum + s.amount, 0),
+    totalMonthlySubscriptions: subscriptions.filter((s) => s.isActive || s.active).reduce((sum, s) => sum + (s.averageAmount ?? s.amount), 0),
   });
 }

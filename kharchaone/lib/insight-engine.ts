@@ -1,4 +1,4 @@
-import { Budget, Goal, NormalizedTransaction } from "@/types";
+import { Budget, CashbackReward, Goal, MonthlyAnalytics, NormalizedTransaction, Subscription, WalletBalance } from "@/types";
 import { format } from "date-fns";
 
 export interface DashboardInsights {
@@ -107,5 +107,101 @@ export function computeInsights(transactions: NormalizedTransaction[], budgets: 
     budgets: budgetProgress,
     goals: activeGoals,
     forecastNextMonth,
+  };
+}
+
+function hourBucket(hour: number): string {
+  const start = Math.floor(hour / 4) * 4;
+  const end = start + 3;
+  return `${String(start).padStart(2, "0")}-${String(end).padStart(2, "0")}`;
+}
+
+export function buildMonthlyAnalytics(
+  userId: string,
+  month: string,
+  transactions: NormalizedTransaction[],
+  cashback: CashbackReward[],
+  wallets: WalletBalance[],
+  subscriptions: Subscription[],
+  smallUpiThreshold = 200
+): MonthlyAnalytics {
+  const now = new Date().toISOString();
+  const monthTransactions = transactions.filter((t) => format(new Date(t.date), "yyyy-MM") === month);
+  const totalIncome = monthTransactions.filter((t) => t.direction === "credit").reduce((sum, t) => sum + Math.abs(t.amount), 0);
+  const totalExpense = monthTransactions.filter((t) => t.direction === "debit").reduce((sum, t) => sum + Math.abs(t.amount), 0);
+  const netSavings = totalIncome - totalExpense;
+
+  const byCategoryMap = new Map<string, number>();
+  monthTransactions
+    .filter((t) => t.direction === "debit")
+    .forEach((t) => byCategoryMap.set(t.category, (byCategoryMap.get(t.category) ?? 0) + Math.abs(t.amount)));
+
+  const smallTxns = monthTransactions.filter(
+    (t) =>
+      t.direction === "debit" &&
+      (t.sourceType ?? t.source) === "UPI" &&
+      Math.abs(t.amount) <= smallUpiThreshold
+  );
+
+  const byDay = new Map<string, { day: string; count: number; total: number }>();
+  const byHour = new Map<string, { hour: string; count: number; total: number }>();
+  smallTxns.forEach((t) => {
+    const dt = new Date(t.date);
+    const day = format(dt, "EEE");
+    const bucket = hourBucket(dt.getHours());
+    byDay.set(day, { day, count: (byDay.get(day)?.count ?? 0) + 1, total: (byDay.get(day)?.total ?? 0) + Math.abs(t.amount) });
+    byHour.set(bucket, { hour: bucket, count: (byHour.get(bucket)?.count ?? 0) + 1, total: (byHour.get(bucket)?.total ?? 0) + Math.abs(t.amount) });
+  });
+
+  const cashbackSummary = cashback.reduce(
+    (acc, item) => {
+      acc[item.status] += item.amount;
+      return acc;
+    },
+    { earned: 0, pending: 0, claimed: 0, expired: 0 }
+  );
+
+  const walletFloat = wallets.reduce(
+    (acc, wallet) => {
+      const lastActivity = wallet.lastActivityAt ?? wallet.lastUsedAt;
+      const derivedActive = lastActivity ? (Date.now() - new Date(lastActivity).getTime()) / 86400000 <= 30 : false;
+      const isActive = wallet.status ? wallet.status === "active" : derivedActive;
+      if (isActive) acc.activeTotal += wallet.balance;
+      else acc.dormantTotal += wallet.balance;
+      return acc;
+    },
+    { activeTotal: 0, dormantTotal: 0 }
+  );
+
+  const subscriptionCostMonthly = subscriptions
+    .filter((s) => s.isActive || s.active)
+    .reduce((sum, s) => {
+      const cycle = s.cycle ?? s.frequency;
+      const amount = s.averageAmount ?? s.amount;
+      if (cycle === "yearly") return sum + amount / 12;
+      if (cycle === "quarterly") return sum + amount / 3;
+      return sum + amount;
+    }, 0);
+
+  return {
+    id: `an_${month}_${userId}`,
+    userId,
+    month,
+    totalIncome,
+    totalExpense,
+    netSavings,
+    byCategory: Array.from(byCategoryMap.entries()).map(([category, amount]) => ({ category, amount })),
+    smallUpiStats: {
+      threshold: smallUpiThreshold,
+      count: smallTxns.length,
+      total: smallTxns.reduce((sum, t) => sum + Math.abs(t.amount), 0),
+      byDayOfWeek: Array.from(byDay.values()),
+      byHourBucket: Array.from(byHour.values()),
+    },
+    cashbackSummary,
+    walletFloat,
+    subscriptionCostMonthly,
+    createdAt: now,
+    updatedAt: now,
   };
 }

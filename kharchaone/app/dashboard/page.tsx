@@ -29,6 +29,9 @@ type DashboardData = {
   recentTransactions: NormalizedTransaction[];
   smallUpi: { count: number; total: number; threshold: number; whatIf20Pct: number };
   forecastNextMonth: number;
+  attentionCount: number;
+  topGoals: Array<{ id: string; name: string; targetAmount: number; currentAmount?: number; currentSavedAmount?: number }>;
+  budgets?: Array<{ category: string; spent: number; limitAmount: number; pct: number; over: boolean }>;
 };
 
 export default function DashboardPage() {
@@ -74,6 +77,31 @@ export default function DashboardPage() {
         </Card>
         <UnknownTransactions transactions={data.recentTransactions ?? []} />
         <WalletSummary wallets={data.wallets ?? []} />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <Card>
+          <CardHeader><CardTitle className="text-base">Attention needed</CardTitle></CardHeader>
+          <CardContent className="text-sm space-y-1">
+            <p>{data.attentionCount} unread anomaly alerts</p>
+            <p className="text-muted-foreground">Review unusual transactions from your spending pattern.</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader><CardTitle className="text-base">Top goals</CardTitle></CardHeader>
+          <CardContent className="space-y-2 text-sm">
+            {(data.topGoals ?? []).slice(0, 3).map((g) => {
+              const current = g.currentSavedAmount ?? g.currentAmount ?? 0;
+              return (
+                <p key={g.id} className="flex justify-between">
+                  <span>{g.name}</span>
+                  <span className="font-medium">{formatCurrency(current)} / {formatCurrency(g.targetAmount)}</span>
+                </p>
+              );
+            })}
+            {(!data.topGoals || data.topGoals.length === 0) && <p className="text-muted-foreground">No active goals yet.</p>}
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -12,15 +12,29 @@ export async function GET() {
   ]);
 
   const inferred = detectSubscriptions(transactions);
-  const totalMonthly = subscriptions.filter((s) => s.isActive && s.frequency === "monthly").reduce((sum, sub) => sum + sub.amount, 0);
+  const totalMonthly = subscriptions
+    .filter((s) => s.isActive || s.active)
+    .reduce((sum, sub) => {
+      const frequency = sub.cycle ?? sub.frequency;
+      const amount = sub.averageAmount ?? sub.amount;
+      if (frequency === "yearly") return sum + amount / 12;
+      if (frequency === "quarterly") return sum + amount / 3;
+      return sum + amount;
+    }, 0);
 
   const forecast = Array.from({ length: 12 }).map((_, i) => {
     const month = addMonths(new Date(), i).toISOString().slice(0, 7);
     return {
       month,
-      total: subscriptions.filter((s) => s.isActive).reduce((sum, sub) => sum + sub.amount, 0),
+      total: totalMonthly,
     };
   });
 
-  return NextResponse.json({ subscriptions, inferred, totalMonthly, annualEstimate: totalMonthly * 12, forecast });
+  return NextResponse.json({
+    subscriptions: subscriptions.map((s) => ({ ...s, redundancyFlag: s.redundancyFlag ?? /ott|stream|netflix|prime|hotstar|spotify/i.test(s.merchant) })),
+    inferred,
+    totalMonthly,
+    annualEstimate: totalMonthly * 12,
+    forecast,
+  });
 }

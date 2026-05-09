@@ -15,6 +15,7 @@ const PAGE_TITLES: Record<string, string> = {
   "/wallets": "Wallets",
   "/subscriptions": "Subscriptions",
   "/rules": "Auto-Categorisation Rules",
+  "/anomalies": "Anomalies",
   "/import": "Import Data",
   "/settings": "Settings",
 };
