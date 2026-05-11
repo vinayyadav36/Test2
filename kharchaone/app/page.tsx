@@ -10,9 +10,9 @@ export default function HomePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  const seedDemo = async () => {
+  const initializeWorkspace = async () => {
     setLoading(true);
-    await fetch("/api/demo/seed", { method: "POST" });
+    await fetch("/api/bootstrap", { method: "POST" });
     router.push("/dashboard");
   };
 
@@ -26,8 +26,8 @@ export default function HomePage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col sm:flex-row gap-3">
-          <Button onClick={seedDemo} disabled={loading} className="flex-1">
-            {loading ? "Seeding demo..." : "View Demo"}
+          <Button onClick={initializeWorkspace} disabled={loading} className="flex-1">
+            {loading ? "Preparing workspace..." : "Open dashboard"}
           </Button>
           <Button asChild variant="outline" className="flex-1">
             <Link href="/import">Import my data</Link>

@@ -1,5 +1,6 @@
-export const DEMO_USER_ID = "demo-user-001";
+export const DEFAULT_USER_ID = "local-user-001";
+export const DEFAULT_USER_EMAIL = "user@kharchaone.local";
 
 export function getSessionUserId(): string {
-  return DEMO_USER_ID;
+  return DEFAULT_USER_ID;
 }

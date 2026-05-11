@@ -1,5 +1,5 @@
-export const DEMO_USER_ID = "demo-user-001";
-export const DEMO_USER_EMAIL = "demo@kharchaone.app";
+export const DEFAULT_USER_ID = "local-user-001";
+export const DEFAULT_USER_EMAIL = "user@kharchaone.local";
 
 export const CATEGORY_COLORS: Record<string, string> = {
   Food: "#ef4444",

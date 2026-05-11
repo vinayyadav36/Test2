@@ -1,9 +1,7 @@
 [
   {
-    "id": "an_2026-05_demo-user-001",
-    "createdAt": "2026-05-09T07:26:25.206Z",
-    "updatedAt": "2026-05-09T07:26:25.224Z",
-    "userId": "demo-user-001",
+    "id": "an_2026-05_local-user-001",
+    "userId": "local-user-001",
     "month": "2026-05",
     "totalIncome": 0,
     "totalExpense": 0,
@@ -26,6 +24,8 @@
       "activeTotal": 0,
       "dormantTotal": 0
     },
-    "subscriptionCostMonthly": 0
+    "subscriptionCostMonthly": 0,
+    "createdAt": "2026-05-11T09:27:07.947Z",
+    "updatedAt": "2026-05-11T09:27:07.947Z"
   }
 ]
