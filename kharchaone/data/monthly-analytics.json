@@ -1,1 +1,31 @@
-[]
+[
+  {
+    "id": "an_2026-05_local-user-001",
+    "userId": "local-user-001",
+    "month": "2026-05",
+    "totalIncome": 0,
+    "totalExpense": 0,
+    "netSavings": 0,
+    "byCategory": [],
+    "smallUpiStats": {
+      "threshold": 200,
+      "count": 0,
+      "total": 0,
+      "byDayOfWeek": [],
+      "byHourBucket": []
+    },
+    "cashbackSummary": {
+      "earned": 0,
+      "pending": 0,
+      "claimed": 0,
+      "expired": 0
+    },
+    "walletFloat": {
+      "activeTotal": 0,
+      "dormantTotal": 0
+    },
+    "subscriptionCostMonthly": 0,
+    "createdAt": "2026-05-11T09:27:07.947Z",
+    "updatedAt": "2026-05-11T09:27:07.947Z"
+  }
+]
