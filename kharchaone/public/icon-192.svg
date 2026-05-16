@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-labelledby="title desc">
+  <title id="title">KharchaOne</title>
+  <desc id="desc">KharchaOne app icon</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#1e293b" />
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f97316" />
+      <stop offset="100%" stop-color="#facc15" />
+    </linearGradient>
+  </defs>
+  <rect width="192" height="192" rx="44" fill="url(#bg)" />
+  <rect x="34" y="42" width="124" height="108" rx="26" fill="#111827" stroke="#334155" stroke-width="4" />
+  <rect x="52" y="62" width="88" height="16" rx="8" fill="url(#accent)" />
+  <rect x="52" y="92" width="56" height="14" rx="7" fill="#e2e8f0" opacity="0.92" />
+  <rect x="52" y="116" width="72" height="14" rx="7" fill="#94a3b8" opacity="0.8" />
+  <circle cx="138" cy="114" r="18" fill="url(#accent)" />
+  <path d="M131 114h14M138 107v14" stroke="#0f172a" stroke-width="5" stroke-linecap="round" />
+</svg>

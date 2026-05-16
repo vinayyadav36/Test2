@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "id": "sess_local-user-001",
+    "userId": "local-user-001",
+    "lastSeenAt": "2026-05-15T10:21:30.722Z",
+    "userAgent": "local-app",
+    "ipHash": "local",
+    "createdAt": "2026-05-15T10:21:30.722Z",
+    "updatedAt": "2026-05-15T10:21:30.722Z"
+  }
+]

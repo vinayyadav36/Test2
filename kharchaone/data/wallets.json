@@ -1,1 +1,67 @@
-[]
+[
+  {
+    "id": "wal_phonepe_001",
+    "userId": "local-user-001",
+    "name": "PhonePe",
+    "walletName": "PhonePe",
+    "provider": "PhonePe",
+    "balance": 2450,
+    "lastActivityAt": "2026-05-15T08:30:00.000Z",
+    "lastUsedAt": "2026-05-15T08:30:00.000Z",
+    "status": "active",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-05-15T08:30:00.000Z"
+  },
+  {
+    "id": "wal_gpay_002",
+    "userId": "local-user-001",
+    "name": "Google Pay",
+    "walletName": "Google Pay",
+    "provider": "Google Pay",
+    "balance": 890,
+    "lastActivityAt": "2026-05-14T16:45:00.000Z",
+    "lastUsedAt": "2026-05-14T16:45:00.000Z",
+    "status": "active",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-05-14T16:45:00.000Z"
+  },
+  {
+    "id": "wal_paytm_003",
+    "userId": "local-user-001",
+    "name": "Paytm Wallet",
+    "walletName": "Paytm Wallet",
+    "provider": "Paytm",
+    "balance": 320,
+    "lastActivityAt": "2026-04-10T12:00:00.000Z",
+    "lastUsedAt": "2026-04-10T12:00:00.000Z",
+    "status": "dormant",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-04-10T12:00:00.000Z"
+  },
+  {
+    "id": "wal_amazon_004",
+    "userId": "local-user-001",
+    "name": "Amazon Pay",
+    "walletName": "Amazon Pay",
+    "provider": "Amazon",
+    "balance": 5000,
+    "lastActivityAt": "2026-05-12T10:20:00.000Z",
+    "lastUsedAt": "2026-05-12T10:20:00.000Z",
+    "status": "active",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-05-12T10:20:00.000Z"
+  },
+  {
+    "id": "wal_mobikwik_005",
+    "userId": "local-user-001",
+    "name": "MobiKwik",
+    "walletName": "MobiKwik",
+    "provider": "MobiKwik",
+    "balance": 150,
+    "lastActivityAt": "2026-03-01T14:00:00.000Z",
+    "lastUsedAt": "2026-03-01T14:00:00.000Z",
+    "status": "dormant",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-03-01T14:00:00.000Z"
+  }
+]

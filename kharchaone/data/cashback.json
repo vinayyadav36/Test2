@@ -1,1 +1,80 @@
-[]
+[
+  {
+    "id": "cb_hdfc_001",
+    "userId": "local-user-001",
+    "sourceName": "HDFC Millennia Card",
+    "amount": 250,
+    "status": "pending",
+    "earnedAt": "2026-05-05T00:00:00.000Z",
+    "expiresAt": "2026-08-05T00:00:00.000Z",
+    "linkedTransactionId": "",
+    "description": "HDFC Millennia Card cashback",
+    "createdAt": "2026-05-05T00:00:00.000Z",
+    "updatedAt": "2026-05-05T00:00:00.000Z"
+  },
+  {
+    "id": "cb_swiggy_002",
+    "userId": "local-user-001",
+    "sourceName": "Swiggy One",
+    "amount": 100,
+    "status": "pending",
+    "earnedAt": "2026-05-08T00:00:00.000Z",
+    "expiresAt": "2026-06-08T00:00:00.000Z",
+    "linkedTransactionId": "",
+    "description": "Swiggy One voucher",
+    "createdAt": "2026-05-08T00:00:00.000Z",
+    "updatedAt": "2026-05-08T00:00:00.000Z"
+  },
+  {
+    "id": "cb_amazon_003",
+    "userId": "local-user-001",
+    "sourceName": "Amazon Pay",
+    "amount": 75,
+    "status": "claimed",
+    "earnedAt": "2026-04-10T00:00:00.000Z",
+    "expiresAt": null,
+    "linkedTransactionId": "",
+    "description": "Amazon Pay cashback",
+    "createdAt": "2026-04-10T00:00:00.000Z",
+    "updatedAt": "2026-04-20T00:00:00.000Z"
+  },
+  {
+    "id": "cb_phonepe_004",
+    "userId": "local-user-001",
+    "sourceName": "PhonePe Switch",
+    "amount": 50,
+    "status": "pending",
+    "earnedAt": "2026-05-12T00:00:00.000Z",
+    "expiresAt": "2026-07-12T00:00:00.000Z",
+    "linkedTransactionId": "",
+    "description": "PhonePe Switch cashback",
+    "createdAt": "2026-05-12T00:00:00.000Z",
+    "updatedAt": "2026-05-12T00:00:00.000Z"
+  },
+  {
+    "id": "cb_paytm_005",
+    "userId": "local-user-001",
+    "sourceName": "Paytm",
+    "amount": 80,
+    "status": "claimed",
+    "earnedAt": "2026-03-20T00:00:00.000Z",
+    "expiresAt": null,
+    "linkedTransactionId": "",
+    "description": "Paytm Cashback",
+    "createdAt": "2026-03-20T00:00:00.000Z",
+    "updatedAt": "2026-03-25T00:00:00.000Z"
+  },
+  {
+    "id": "cb_cred_006",
+    "userId": "local-user-001",
+    "sourceName": "CRED",
+    "amount": 200,
+    "status": "expired",
+    "earnedAt": "2026-01-18T00:00:00.000Z",
+    "expiresAt": "2026-04-18T00:00:00.000Z",
+    "linkedTransactionId": "",
+    "description": "CRED Coins",
+    "createdAt": "2026-01-18T00:00:00.000Z",
+    "updatedAt": "2026-04-18T00:00:00.000Z"
+  }
+]

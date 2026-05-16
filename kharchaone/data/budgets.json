@@ -1,1 +1,67 @@
-[]
+[
+  {
+    "id": "bud_food_001",
+    "createdAt": "2026-05-01T00:00:00.000Z",
+    "updatedAt": "2026-05-16T15:21:29.908Z",
+    "userId": "local-user-001",
+    "month": "2026-05",
+    "category": "Food",
+    "limitAmount": 8000,
+    "spentAmount": 2420,
+    "remainingAmount": 5580,
+    "status": "under",
+    "thresholdNearRatio": 0.8
+  },
+  {
+    "id": "bud_grocery_002",
+    "createdAt": "2026-05-01T00:00:00.000Z",
+    "updatedAt": "2026-05-16T15:21:29.913Z",
+    "userId": "local-user-001",
+    "month": "2026-05",
+    "category": "Grocery",
+    "limitAmount": 12000,
+    "spentAmount": 5400,
+    "remainingAmount": 6600,
+    "status": "under",
+    "thresholdNearRatio": 0.8
+  },
+  {
+    "id": "bud_transport_003",
+    "createdAt": "2026-05-01T00:00:00.000Z",
+    "updatedAt": "2026-05-16T15:21:29.917Z",
+    "userId": "local-user-001",
+    "month": "2026-05",
+    "category": "Transport",
+    "limitAmount": 5000,
+    "spentAmount": 160,
+    "remainingAmount": 4840,
+    "status": "under",
+    "thresholdNearRatio": 0.8
+  },
+  {
+    "id": "bud_shopping_004",
+    "createdAt": "2026-05-01T00:00:00.000Z",
+    "updatedAt": "2026-05-16T15:21:29.924Z",
+    "userId": "local-user-001",
+    "month": "2026-05",
+    "category": "Shopping",
+    "limitAmount": 10000,
+    "spentAmount": 8500,
+    "remainingAmount": 1500,
+    "status": "near",
+    "thresholdNearRatio": 0.8
+  },
+  {
+    "id": "bud_entertainment_005",
+    "createdAt": "2026-05-01T00:00:00.000Z",
+    "updatedAt": "2026-05-16T15:21:29.928Z",
+    "userId": "local-user-001",
+    "month": "2026-05",
+    "category": "Entertainment",
+    "limitAmount": 3000,
+    "spentAmount": 0,
+    "remainingAmount": 3000,
+    "status": "under",
+    "thresholdNearRatio": 0.8
+  }
+]

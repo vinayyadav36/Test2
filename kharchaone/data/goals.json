@@ -1,1 +1,44 @@
-[]
+[
+  {
+    "id": "goal_emergency_001",
+    "userId": "local-user-001",
+    "name": "Emergency Fund",
+    "targetAmount": 500000,
+    "currentSavedAmount": 125000,
+    "currentAmount": 125000,
+    "targetDate": "2027-06-01T00:00:00.000Z",
+    "priority": "high",
+    "status": "in_progress",
+    "isActive": true,
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-05-15T00:00:00.000Z"
+  },
+  {
+    "id": "goal_vacation_002",
+    "userId": "local-user-001",
+    "name": "Vacation Fund",
+    "targetAmount": 100000,
+    "currentSavedAmount": 35000,
+    "currentAmount": 35000,
+    "targetDate": "2026-12-01T00:00:00.000Z",
+    "priority": "medium",
+    "status": "in_progress",
+    "isActive": true,
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-05-15T00:00:00.000Z"
+  },
+  {
+    "id": "goal_iphone_003",
+    "userId": "local-user-001",
+    "name": "New iPhone",
+    "targetAmount": 120000,
+    "currentSavedAmount": 30000,
+    "currentAmount": 30000,
+    "targetDate": "2026-09-01T00:00:00.000Z",
+    "priority": "low",
+    "status": "in_progress",
+    "isActive": true,
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-05-15T00:00:00.000Z"
+  }
+]

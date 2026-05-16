@@ -1,1 +1,19 @@
-[]
+[
+  {
+    "id": "anomaly_may_001",
+    "userId": "local-user-001",
+    "transactionId": "txn_may_009",
+    "type": "amount_outlier",
+    "severity": "medium",
+    "message": "This payment is significantly higher than your typical spends at this merchant.",
+    "details": {
+      "merchant": "Myntra",
+      "typicalAmountMedian": 2149,
+      "typicalAmountIqrHigh": 2800,
+      "currentAmount": 8500
+    },
+    "status": "unread",
+    "createdAt": "2026-05-12T00:00:00.000Z",
+    "updatedAt": "2026-05-12T00:00:00.000Z"
+  }
+]
